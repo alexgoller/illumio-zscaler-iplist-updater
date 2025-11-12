@@ -29,15 +29,26 @@ This script fetches the latest IP addresses from Zscaler's public API (`https://
 ### Setup
 
 1. Clone this repository:
-   
-   git clone <repository-url>
-   cd illumio-zscaler-iplist-updater
-   2. Install dependencies:
-   pip install -r requirements.txt
-   3. (Optional) Set up environment variables using a `.env` file:h
-   cp .env.example .env
-   # Edit .env with your Illumio PCE credentials
-   ## Usage
+
+```bash
+git clone <repository-url>
+cd illumio-zscaler-iplist-updater
+```
+
+2. Install dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+3. (Optional) Set up environment variables using a `.env` file:
+
+```bash
+cp .env.example .env
+# Edit .env with your Illumio PCE credentials
+```
+
+## Usage
 
 ### Configuration Options
 
@@ -73,6 +84,7 @@ You can provide credentials via environment variables or command-line arguments.
 
 The script automatically loads variables from a `.env` file if `python-dotenv` is installed:
 
+```bash
 # Create .env file
 cat > .env << EOF
 ILLUMIO_PCE_HOST=pce.company.com
@@ -83,24 +95,36 @@ ILLUMIO_PORT=443
 EOF
 
 # Run the script
-python update_zscaler_iplist.py --iplist-name "Zscaler IPs"#### Option 2: Using Exported Environment Variables
+python update_zscaler_iplist.py --iplist-name "Zscaler IPs"
+```
 
+#### Option 2: Using Exported Environment Variables
+
+```bash
 export ILLUMIO_PCE_HOST=pce.company.com
 export ILLUMIO_API_KEY=your_api_key_username
 export ILLUMIO_API_SECRET=your_api_secret
 export ILLUMIO_ORG_ID=1
 export ILLUMIO_PORT=443
 
-python update_zscaler_iplist.py --iplist-name "Zscaler IPs"#### Option 3: Using Command-Line Arguments
-h
+python update_zscaler_iplist.py --iplist-name "Zscaler IPs"
+```
+
+#### Option 3: Using Command-Line Arguments
+
+```bash
 python update_zscaler_iplist.py \
   --pce-host pce.company.com \
   --api-key your_api_key_username \
   --api-secret your_api_secret \
   --org-id 1 \
   --port 443 \
-  --iplist-name "Zscaler IPs"#### Option 4: Mixed (Environment Variables + Command-Line)
+  --iplist-name "Zscaler IPs"
+```
 
+#### Option 4: Mixed (Environment Variables + Command-Line)
+
+```bash
 # Set most credentials via environment
 export ILLUMIO_PCE_HOST=pce.company.com
 export ILLUMIO_API_KEY=your_api_key_username
@@ -108,6 +132,8 @@ export ILLUMIO_API_SECRET=your_api_secret
 
 # Override org-id via command line
 python update_zscaler_iplist.py --org-id 2 --iplist-name "Zscaler IPs"
+```
+
 ### Important Notes
 
 #### Organization ID
@@ -123,8 +149,12 @@ The organization ID (`--org-id` or `ILLUMIO_ORG_ID`) is **crucial** for connecti
 #### SSL Verification
 
 By default, the script verifies SSL certificates. If you're using self-signed certificates or encountering SSL issues, you can disable verification with `--no-verify-ssl`:
-sh
-python update_zscaler_iplist.py --iplist-name "Zscaler IPs" --no-verify-ssl**⚠️ Warning**: Disabling SSL verification is not recommended for production environments as it reduces security.
+
+```bash
+python update_zscaler_iplist.py --iplist-name "Zscaler IPs" --no-verify-ssl
+```
+
+**⚠️ Warning**: Disabling SSL verification is not recommended for production environments as it reduces security.
 
 ## How It Works
 
@@ -138,4 +168,6 @@ python update_zscaler_iplist.py --iplist-name "Zscaler IPs" --no-verify-ssl**⚠
 ### Example Output
 
 #### When IPs Have Changed:
+
 ```
+Fetchin
