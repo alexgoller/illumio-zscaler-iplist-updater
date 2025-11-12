@@ -170,4 +170,229 @@ python update_zscaler_iplist.py --iplist-name "Zscaler IPs" --no-verify-ssl
 #### When IPs Have Changed:
 
 ```
-Fetchin
+Fetching IP addresses from https://config.zscaler.com/api/zscaler.net/future/json...
+Successfully fetched 50 IP ranges from Zscaler
+
+Using organization ID: 1
+Connecting to Illumio PCE at pce.company.com:443...
+Successfully connected to Illumio PCE (Org ID: 1)
+Searching for existing IPList: Zscaler IPs...
+Found existing IPList (href: /orgs/1/sec_policy/draft/ip_lists/42)
+IP ranges have changed:
+  Existing: 48 IP ranges
+  New: 50 IP ranges
+  Added: 2 IP range(s)
+    + 203.0.113.0/24
+    + 198.51.100.0/24
+Updating IPList with 50 IP ranges...
+Successfully updated IPList: Zscaler IPs
+IPList href: /orgs/1/sec_policy/draft/ip_lists/42
+
+Provisioning policy changes...
+Provisioning policy changes for IPList: /orgs/1/sec_policy/draft/ip_lists/42...
+Successfully provisioned policy changes
+Policy version: 110
+Workloads affected: 0
+
+✓ Script completed successfully!
+```
+
+#### When IPs Are Unchanged:
+
+```
+Fetching IP addresses from https://config.zscaler.com/api/zscaler.net/future/json...
+Successfully fetched 50 IP ranges from Zscaler
+
+Using organization ID: 1
+Connecting to Illumio PCE at pce.company.com:443...
+Successfully connected to Illumio PCE (Org ID: 1)
+Searching for existing IPList: Zscaler IPs...
+Found existing IPList (href: /orgs/1/sec_policy/draft/ip_lists/42)
+IP ranges are unchanged (50 IP ranges)
+IPList 'Zscaler IPs' is already up to date. No update needed.
+IPList href: /orgs/1/sec_policy/draft/ip_lists/42
+
+✓ Script completed successfully (no changes to provision)!
+```
+
+## Scheduling
+
+You can schedule this script to run periodically using cron to ensure your IPList stays up to date.
+
+### Example Cron Job (Daily at 2 AM)
+
+```bash
+# Edit crontab
+crontab -e
+
+# Add the following (adjust paths as needed)
+0 2 * * * cd /path/to/illumio-zscaler-iplist-updater && /usr/bin/python3 update_zscaler_iplist.py --iplist-name "Zscaler IPs" >> /var/log/zscaler-iplist-update.log 2>&1
+```
+
+### Example Cron Job with Environment Variables
+
+```bash
+# Edit crontab
+crontab -e
+
+# Add the following
+ILLUMIO_PCE_HOST=pce.company.com
+ILLUMIO_API_KEY=your_api_key_username
+ILLUMIO_API_SECRET=your_api_secret
+ILLUMIO_ORG_ID=1
+ILLUMIO_PORT=443
+
+0 2 * * * cd /path/to/illumio-zscaler-iplist-updater && /usr/bin/python3 update_zscaler_iplist.py --iplist-name "Zscaler IPs" >> /var/log/zscaler-iplist-update.log 2>&1
+```
+
+### Example Cron Job with .env File
+
+```bash
+# Edit crontab
+crontab -e
+
+# Add the following (ensure .env file is in the script directory)
+0 2 * * * cd /path/to/illumio-zscaler-iplist-updater && /usr/bin/python3 update_zscaler_iplist.py --iplist-name "Zscaler IPs" >> /var/log/zscaler-iplist-update.log 2>&1
+```
+
+### Monitoring
+
+Check the log file to monitor script execution:
+
+```bash
+# View recent log entries
+tail -f /var/log/zscaler-iplist-update.log
+
+# Check for errors
+grep -i error /var/log/zscaler-iplist-update.log
+```
+
+## Requirements
+
+### Python Version
+
+- Python 3.7 or higher
+
+### Python Dependencies
+
+- `requests>=2.31.0` - For HTTP requests to Zscaler API
+- `illumio>=1.1.3` - Illumio Python SDK for PCE API interactions
+- `python-dotenv>=1.0.0` - For loading environment variables from .env file (optional)
+
+Install all dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+### Illumio Requirements
+
+- Illumio Core PCE (Policy Compute Engine)
+- API credentials with permissions to:
+  - Create and update IPLists
+  - Provision policy changes
+- Network access to:
+  - Zscaler API: `https://config.zscaler.com/api/zscaler.net/future/json`
+  - Your Illumio PCE instance
+
+## Troubleshooting
+
+### Common Issues
+
+#### 1. Connection Errors
+
+**Error**: `Error connecting to Illumio PCE: ...`
+
+**Solutions**:
+- Verify `ILLUMIO_PCE_HOST` is correct
+- Check network connectivity to PCE
+- Verify port is correct (default: 443)
+- Check if SSL verification needs to be disabled (`--no-verify-ssl`)
+- Verify firewall rules allow connections
+
+#### 2. Authentication Errors
+
+**Error**: `Error connecting to Illumio PCE: Authentication failed`
+
+**Solutions**:
+- Verify API credentials are correct
+- Check that API key has not expired
+- Ensure API key has required permissions
+- Verify organization ID is correct
+
+#### 3. Organization ID Issues
+
+**Error**: `Error connecting to Illumio PCE: Organization not found`
+
+**Solutions**:
+- Verify organization ID is correct
+- Check PCE web console URL for correct org ID
+- For single-org PCEs, use `1`
+- Contact Illumio administrator if unsure
+
+#### 4. IPList Not Found (First Run)
+
+**Message**: `IPList not found. Creating new IPList: ...`
+
+**Note**: This is normal for the first run. The script will create the IPList automatically.
+
+#### 5. SSL Certificate Errors
+
+**Error**: SSL certificate verification failed
+
+**Solutions**:
+- Verify PCE SSL certificate is valid
+- Use `--no-verify-ssl` flag (not recommended for production)
+- Update CA certificates on the system
+- Check system date/time is correct
+
+#### 6. Zscaler API Errors
+
+**Error**: `Error fetching Zscaler IPs: ...`
+
+**Solutions**:
+- Check internet connectivity
+- Verify Zscaler API is accessible
+- Check firewall/proxy settings
+- Verify API endpoint URL is correct
+
+### Debug Mode
+
+For more detailed error information, check the script output. All errors are printed to `stderr` and will appear in the console/log file.
+
+## Security Considerations
+
+1. **API Credentials**: Store credentials securely using environment variables or `.env` files
+2. **File Permissions**: Ensure `.env` file has restrictive permissions:
+   ```bash
+   chmod 600 .env
+   ```
+3. **SSL Verification**: Always use SSL verification in production (default behavior)
+4. **Log Files**: Be cautious about logging sensitive information
+5. **Network Security**: Ensure secure network connections to both Zscaler API and Illumio PCE
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## License
+
+MIT License - see LICENSE file for details
+
+## Support
+
+For issues related to:
+- **This script**: Open an issue in the repository
+- **Illumio PCE**: Contact Illumio support
+- **Zscaler API**: Contact Zscaler support
+
+## Changelog
+
+### Version 1.0.0
+- Initial release
+- Fetch Zscaler IPs from public API
+- Create/update Illumio IPList
+- Intelligent change detection
+- Automatic policy provisioning
+- Support for environment variables and command-line arguments
+- IPv4 and IPv6 support
