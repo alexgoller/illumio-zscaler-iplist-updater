@@ -310,7 +310,11 @@ Examples:
             pce.set_tls_settings(verify=False)
         
 
-        print(f"Successfully connected to Illumio PCE (Org ID: {args.org_id})")
+        if pce.check_connection():
+            print(f"Successfully connected to Illumio PCE (Org ID: {args.org_id})")
+        else:
+            print("Failed to connect to Illumio PCE", file=sys.stderr)
+            sys.exit(1)
     except Exception as e:
         print(f"Error connecting to Illumio PCE: {e}", file=sys.stderr)
         sys.exit(1)
